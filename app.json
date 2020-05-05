@@ -1,0 +1,17 @@
+{
+  "name": "netease_cloud_music_react_native",
+  "displayName": "netease_cloud_music_react_native",
+  "expo": {
+    "name": "netease_cloud_music_react_native",
+    "slug": "netease_cloud_music_react_native",
+    "version": "1.0.0",
+    "platforms": [
+      "ios",
+      "android",
+      "web"
+    ],
+    "assetBundlePatterns": [
+      "**/*"
+    ]
+  }
+}
