@@ -1,7 +1,7 @@
 import React, {Component} from "react";
 import {Text} from 'react-native';
 
-class Drawer extends Component{
+class Index extends Component{
   render() {
     return (
       <Text>drawer</Text>
@@ -9,4 +9,4 @@ class Drawer extends Component{
   }
 }
 
-export default Drawer;
+export default Index;

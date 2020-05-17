@@ -1,5 +1,5 @@
 // import {createIconSet} from 'react-native-vector-icons';
-// import glyphMap from './iconfont.json';
+// import glyphMap from './iconfonts.json';
 //
 // const iconSet = createIconSet(glyphMap, 'iconfont', 'iconfont.ttf');
 //
@@ -11,7 +11,7 @@
 // export const ToolbarAndroid = iconSet.ToolbarAndroid;
 // export const getImageSource = iconSet.getImageSource;
 import * as React from 'react';
-import glyphMap from './iconfont.json';
+import glyphMap from './iconfonts.json';
 
 import { createIconSet } from '@expo/vector-icons';
 

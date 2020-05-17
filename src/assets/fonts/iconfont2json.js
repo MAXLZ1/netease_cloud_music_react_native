@@ -7,7 +7,24 @@ const res = json.glyphs.reduce((res, curr) => {
   return res;
 }, {});
 
-fs.writeFile('./iconfont-res.json', JSON.stringify(res), err => {
-  if (err) console.log('文件写入失败！');
-  else console.log('文件已生成');
+fs.writeFile('./iconfonts.json', JSON.stringify(res), err => {
+  if (err) console.log('iconfonts.json文件写入失败！');
+  else console.log('iconfonts.json文件已生成');
 });
+
+const iconStr = `
+enum IconType {
+  ${Object.keys(res).map(item => {
+    let key = item.replace('-', '_');
+    if (!isNaN(Number(item[0]))) key = `n${key}`
+    return `${key} = "${item}"`;
+  }).join(',\n  ')}
+}
+
+export default IconType;
+`
+
+fs.writeFile('icon.ts', iconStr, err => {
+  if (err) console.log('icon.ts文件写入失败');
+  else console.log('icon.ts文件已生成');
+})

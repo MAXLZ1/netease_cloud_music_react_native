@@ -1,7 +1,7 @@
 import React, {Component} from "react";
 import {View, Text} from 'react-native';
 
-class Video extends Component{
+class Index extends Component{
   render() {
     return (
       <View>
@@ -11,4 +11,4 @@ class Video extends Component{
   }
 }
 
-export default Video;
+export default Index;

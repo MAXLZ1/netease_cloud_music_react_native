@@ -1,25 +1,45 @@
 import React, {Component} from "react";
-import {Text, TouchableHighlight, View, StyleSheet, Dimensions} from "react-native";
-import {NavigationContainer} from "@react-navigation/native";
-import {createMaterialTopTabNavigator} from "@react-navigation/material-top-tabs";
-import DrawerLayout from "react-native-gesture-handler/DrawerLayout";
-import Me from "../screens/Me";
-import Discover from "../screens/Discover";
-import CloudVillage from "../screens/CloudVillage";
-import Video from "../screens/Video";
-import Drawer from "../screens/Drawer";
-// @ts-ignore
-import Iconfont from "../assets/fonts/Iconfont.js";
+import {
+  StyleSheet,
+  TextInput,
+  View,
+  TouchableHighlight,
+  TouchableWithoutFeedback,
+  Text,
+  Dimensions,
+  FlatList
+} from "react-native";
+import {createStackNavigator} from "@react-navigation/stack";
+import Drawer from "../screens/Drawer/index";
+import Search from "../screens/Search";
+import Main from "../screens/Main";
+import ArtistList from "../screens/ArtistList";
+import {Padding, ThemeColor} from "../constants/theme";
+import Icon from "../assets/fonts/Iconfont";
+import IconType from "../assets/fonts/icon";
+import API from "../services";
+import Storage from "../util/storage";
 
-const Tab = createMaterialTopTabNavigator();
-const DRAW_WIDTH = Dimensions.get('window').width - 70;
+const Stack = createStackNavigator();
 
-class Navigation extends Component{
+interface NavigationStates{
+  value: string,
+  searchSuggests: Object[]
+}
+
+class Navigation extends Component<{}, NavigationStates>{
   private drawer: any;
+  private input: any;
+
+  state = {
+    value: '',
+    searchSuggests: []
+  };
 
   constructor(props: Readonly<{}>) {
     super(props);
     this.drawer = React.createRef();
+    this.input = React.createRef();
   }
 
   renderDrawer() {
@@ -32,144 +52,235 @@ class Navigation extends Component{
     this.drawer.current.openDrawer();
   };
 
+  handleChange = async (text: string) => {
+    this.setState({
+      value: text,
+    });
+    if (text) {
+      const res: any = await API.requestSearchSuggest(text);
+
+      this.setState({
+        searchSuggests: res.result.allMatch || []
+      });
+    } else {
+      this.setState({
+        searchSuggests: []
+      });
+    }
+
+  };
+
+  clearInput = () => {
+    this.setState({
+      value: '',
+      searchSuggests: []
+    });
+  };
+
+  search = async () => {
+    const {value} = this.state;
+    if (value !== '') {
+      await API.requestSearch(value);
+      const searchHistory = await Storage.getItem('search_history');
+      const historyArr = searchHistory ? JSON.parse(searchHistory) : [];
+      historyArr.unshift(value);
+      await Storage.setItem('search_history', JSON.stringify(historyArr));
+      this.setState({
+        value: ''
+      })
+    }
+  };
+
+  renderSearchInput = () => {
+    const {value} = this.state;
+    return (
+      <View style={styles.inputBox}>
+        <TextInput
+          style={styles.input}
+          value={value}
+          onChangeText={this.handleChange}
+          selectionColor={ThemeColor}
+          returnKeyType="search"
+          autoFocus={true}
+          onSubmitEditing={this.search}
+        />
+        {
+          value ?
+            <TouchableWithoutFeedback onPress={this.clearInput}>
+              <Icon name={IconType.guanbi} size={22} color="#000000" style={styles.close} />
+            </TouchableWithoutFeedback>
+            :
+            <Text style={styles.placeholder} numberOfLines={1} ellipsizeMode="tail">
+              请输入要搜索的关键字
+            </Text>
+        }
+      </View>
+    );
+  };
+
+  searchHeader = ({navigation}: any) => {
+    const {searchSuggests, value} = this.state;
+
+    return (
+      <View style={styles.header}>
+        <TouchableHighlight
+          style={styles.circle}
+          underlayColor="#dddddd"
+          onPress={() => navigation.goBack()}
+        >
+          <Icon name={IconType.arrow_left} size={24} color="#000000"/>
+        </TouchableHighlight>
+        {this.renderSearchInput()}
+        <TouchableHighlight
+          style={styles.circle}
+          underlayColor="#dddddd"
+          onPress={() => navigation.navigate('ArtistList')}
+        >
+          <Icon name={IconType.iconfontgerenzhongxin16} size={24} color="#000000"/>
+        </TouchableHighlight>
+        {
+          searchSuggests.length > 0 && value !== '' && <View style={styles.result}>
+            <TouchableWithoutFeedback onPress={this.search}>
+              <View style={[styles.listItem, styles.search]}>
+                <Text  numberOfLines={1} ellipsizeMode="tail" style={[styles.text, {color: '#50b2ff'}]}>搜索 '{value}'</Text>
+              </View>
+            </TouchableWithoutFeedback>
+            <FlatList
+              data={searchSuggests}
+              keyExtractor={(item, index) => index + ''}
+              renderItem={({item}) => {
+                return (
+                  <View style={styles.listItem}>
+                    <Icon name={IconType.iconfonticonfontsousuo1} size={19} color="#868686" />
+                    <Text style={styles.text} numberOfLines={1} ellipsizeMode="tail">{item.keyword}</Text>
+                  </View>
+                );
+              }}
+            />
+          </View>
+        }
+      </View>
+    );
+  };
+
+  artistListHeader = ({navigation}: any) => {
+    return (
+      <View style={styles.header}>
+        <TouchableHighlight
+          style={styles.circle}
+          underlayColor="#dddddd"
+          onPress={() => navigation.goBack()}
+        >
+          <Icon name={IconType.arrow_left} size={24} color="#000000"/>
+        </TouchableHighlight>
+        <Text style={styles.headerTitle}>歌手分类</Text>
+      </View>
+    );
+  };
+
   render() {
     return (
       <>
-        <DrawerLayout
-          drawerWidth={DRAW_WIDTH}
-          drawerType='front'
-          drawerBackgroundColor="#ddd"
-          renderNavigationView={this.renderDrawer}
-          ref={this.drawer}
-        >
-          <NavigationContainer>
-            <Tab.Navigator
-              initialRouteName="Discover"
-              tabBar={
-                ({ state, descriptors, navigation, position }) => {
-                  return (
-                    <View style={styles.container}>
-                      <TouchableHighlight
-                        underlayColor="#ffffff"
-                        style={styles.iconStyle}
-                        onPress={this.openDrawer}
-                      >
-                        <Iconfont name="gengduo" size={18} color='#000000' />
-                      </TouchableHighlight>
-                      <View style={styles.tabContainer}>
-                        {
-                          state.routes.map((route, index) => {
-                            const { options } = descriptors[route.key];
-                            // 获取tab标题
-                            const label =
-                              options.tabBarLabel !== undefined
-                                ? options.tabBarLabel
-                                : options.title !== undefined
-                                ? options.title
-                                : route.name;
-                            const isFocused = state.index === index;
-
-                            const onPress = () => {
-                              const event = navigation.emit({
-                                type: 'tabPress',
-                                target: route.key,
-                                canPreventDefault: true,
-                              });
-                              if (!isFocused && !event.defaultPrevented) {
-                                navigation.navigate(route.name);
-                              }
-                            };
-
-                            return (
-                              <TouchableHighlight
-                                onPress={onPress}
-                                underlayColor="#ffffff"
-                                activeOpacity={1}
-                                style={[styles.tabItem]}
-                                key={index}
-                              >
-                                <Text style={[styles.tabItemText, isFocused ? styles.active : {}]}>{label}</Text>
-                              </TouchableHighlight>
-                            );
-                          })
-                        }
-                      </View>
-                      <TouchableHighlight
-                        style={styles.iconStyle}
-                        underlayColor="#ffffff"
-                      >
-                        <Iconfont name="sousuo" size={18} color='#000000' />
-                      </TouchableHighlight>
-                    </View>
-                  );
-                }
-              }
-            >
-              <Tab.Screen
-                name="Me"
-                component={Me}
-                options={{tabBarLabel: '我的'}}
-              ></Tab.Screen>
-              <Tab.Screen
-                name="Discover"
-                component={Discover}
-                options={{tabBarLabel: '发现'}}
-              ></Tab.Screen>
-              <Tab.Screen
-                name="CloudVillage"
-                component={CloudVillage}
-                options={{tabBarLabel: '云村'}}
-              ></Tab.Screen>
-              <Tab.Screen
-                name="Video"
-                component={Video}
-                options={{tabBarLabel: '视频'}}
-              ></Tab.Screen>
-            </Tab.Navigator>
-          </NavigationContainer>
-        </DrawerLayout>
-
+        <Stack.Navigator>
+          <Stack.Screen
+            name="Main"
+            component={Main}
+            options={{
+              headerShown: false
+            }}
+          />
+          <Stack.Screen
+            name="Search"
+            component={Search}
+            options={{
+              header: this.searchHeader,
+            }}
+          />
+          <Stack.Screen
+            name="ArtistList"
+            component={ArtistList}
+            options={{
+              header: this.artistListHeader,
+            }}
+          />
+        </Stack.Navigator>
       </>
     );
   }
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    height: 50,
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  tabContainer: {
-    width: 240,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-evenly',
-  },
-  tabItem: {
-    flex: 1,
-    alignItems:'center',
-    justifyContent: 'center',
-    width: 50,
-    height: 50,
-    borderRadius: 50,
-    marginHorizontal: 5
-  },
-  tabItemText: {
-    fontSize: 15,
-    color: '#7c7c7c',
-  },
-  active: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#000000'
-  },
-  iconStyle: {
+  circle: {
     width: 40,
     height: 40,
+    borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center'
+  },
+  header: {
+    height: 50,
+    backgroundColor: '#ffffff',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    paddingHorizontal: 10
+  },
+  inputBox: {
+    flex: 1,
+    justifyContent: 'center',
+    height: 45,
+    marginHorizontal: 20,
+  },
+  input: {
+    fontSize: 16,
+    height: 40,
+    borderBottomColor: '#878787',
+    borderBottomWidth: 1,
+    paddingRight: 20
+  },
+  close: {
+    position: 'absolute',
+    right: 0
+  },
+  placeholder: {
+    position: 'absolute',
+    left: 0,
+    right: 40,
+    zIndex: -1,
+    color: '#939393',
+    fontSize: 16
+  },
+  result: {
+    position: 'absolute',
+    left: Padding,
+    top: 50,
+    elevation: 10,
+    shadowOffset: {width: 0, height: 0},
+    shadowColor: 'rgba(49,49,49,0.7)',
+    shadowOpacity: 0.7,
+    shadowRadius: 10,
+    width: Dimensions.get('window').width - Padding * 2 - 15 - 40,
+    backgroundColor: '#ffffff'
+  },
+  listItem: {
+    paddingHorizontal: 15,
+    height: 45,
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: '#bfbfbf'
+  },
+  search: {
+    borderTopWidth: 0
+  },
+  text: {
+    marginLeft: 10,
+    fontSize: 14,
+    color: '#868686'
+  },
+  headerTitle: {
+    marginLeft: 10,
+    fontSize: 17
   }
 });
 
