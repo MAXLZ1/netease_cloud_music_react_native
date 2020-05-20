@@ -1,12 +1,17 @@
 import React, {Component} from "react";
 import Swiper from 'react-native-swiper';
-import {View, StyleSheet, Dimensions, ImageBackground, Text} from "react-native";
+import {View, StyleSheet, Dimensions, ImageBackground, Text, TouchableWithoutFeedback} from "react-native";
 import API from "../../../services";
 import {ThemeColor, Padding} from "../../../constants/theme";
+import {StackNavigationHelpers} from "@react-navigation/stack/lib/typescript/src/types";
 
 const {width} = Dimensions.get('window');
 
-class Banner extends Component {
+interface BannerProps {
+  navigation: StackNavigationHelpers
+}
+
+class Banner extends Component<BannerProps> {
   state = {
     banners: [],
     showSwiper: false
@@ -20,6 +25,12 @@ class Banner extends Component {
       showSwiper: true
     });
   }
+
+  bannerPress = ({url}: any) => {
+    if (url) {
+      this.props.navigation.navigate('CustomWebView', {uri: url})
+    }
+  };
 
   render() {
     const {banners, showSwiper} = this.state;
@@ -42,22 +53,24 @@ class Banner extends Component {
             banners.map((banner) => {
               const {bannerId, pic, typeTitle, titleColor} = banner;
               return (
-                <View
-                  key={bannerId}
-                  style={styles.slider}
-                >
-                  <ImageBackground
-                    source={{uri: `${pic}`}}
-                    style={styles.img}
-                    resizeMode="stretch"
+                <TouchableWithoutFeedback onPress={() => this.bannerPress(banner)}>
+                  <View
+                    key={bannerId}
+                    style={styles.slider}
                   >
-                    <View style={[styles.tagView, {backgroundColor: titleColor}]}>
-                      <Text style={styles.tag}>
-                        {typeTitle}
-                      </Text>
-                    </View>
-                  </ImageBackground>
-                </View>
+                    <ImageBackground
+                      source={{uri: `${pic}`}}
+                      style={styles.img}
+                      resizeMode="stretch"
+                    >
+                      <View style={[styles.tagView, {backgroundColor: titleColor}]}>
+                        <Text style={styles.tag}>
+                          {typeTitle}
+                        </Text>
+                      </View>
+                    </ImageBackground>
+                  </View>
+                </TouchableWithoutFeedback>
               );
             })
           }

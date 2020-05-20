@@ -1,10 +1,19 @@
 import React, {Component} from "react";
-import {Text, View, StyleSheet, TouchableHighlight, FlatList, Image} from "react-native";
+import {
+  Text,
+  View,
+  StyleSheet,
+  TouchableHighlight,
+  FlatList,
+  Image,
+  TouchableNativeFeedback,
+  Platform, GestureResponderEvent
+} from "react-native";
 import Icon from "../../assets/fonts/Iconfont";
 import IconType from "../../assets/fonts/icon";
 import API from "../../services";
 import {ThemeColor} from "../../constants/theme";
-import Loading from "../../components/loading";
+import Loading from "../../components/Loading";
 
 interface ArtistListState {
   types: object[],
@@ -12,12 +21,17 @@ interface ArtistListState {
   limit: number,
   offset: number,
   type: number,
-  area: number
+  area: number,
+  hideCondition: boolean
 }
 
 class ArtistList extends Component<ArtistListState>{
+  constructor(props: Readonly<ArtistListState>) {
+    super(props);
+  }
+
   state = {
-    types: [
+    areas: [
       {
         name: '华语',
         value: 7
@@ -39,7 +53,7 @@ class ArtistList extends Component<ArtistListState>{
         value: 0
       },
     ],
-    areas: [
+    types: [
       {
         name: '男',
         value: 1
@@ -54,10 +68,11 @@ class ArtistList extends Component<ArtistListState>{
       },
     ],
     artistList: [],
-    limit: 20,
+    limit: 12,
     offset: 0,
     type: -1,
-    area: -1
+    area: -1,
+    hideCondition: false
   };
 
   headerComponent = (
@@ -68,42 +83,84 @@ class ArtistList extends Component<ArtistListState>{
 
   private loading = <></>;
 
-  async componentDidMount() {
-    await this.setArtistList();
+  async requestArtist(){
+    const {limit, offset, type, area} = this.state;
+    const result: any = await API.requestArtist(limit, offset, type, area);
+    return result.artists;
   }
 
-  setArtistList = async () => {
-    const {limit, offset, type, area, artistList} = this.state;
-    const result: any = await API.requestArtist(limit, offset, type, area);
+  async componentDidMount() {
+    await this.resetArtistList();
+  }
+
+  async resetArtistList() {
+    const artistList= await this.requestArtist();
     this.setState({
-      artistList: [...artistList, ...result.artists]
+      artistList
     });
+  }
+
+  changeArea = async (value: number) => {
+    let {type} = this.state;
+    if (type === -1) {
+      type = 1;
+    }
+    this.setState({
+      area: value,
+      type,
+      artistList: []
+    }, async () => await this.resetArtistList());
+  };
+
+  changeType= async (value: number) => {
+    let {area} = this.state;
+    if (area === -1) {
+      area = 7;
+    }
+    this.setState({
+      area,
+      type: value,
+      artistList: []
+    }, async () => await this.resetArtistList());
   };
 
   updateData = () => {
-    this.loading =  <Loading />;
-    const {offset, limit} = this.state;
+    this.loading =  (
+      <View style={{marginBottom: 10}}>
+        <Loading />
+      </View>
+    );
+    const {offset, limit, artistList} = this.state;
     this.setState({
       offset: offset + limit
     }, async () => {
-      await this.setArtistList();
+      const result = await this.requestArtist();
+      this.setState({
+        artistList: [...artistList, ...result]
+      });
       this.loading =  <></>;
     });
   };
 
+  onScroll = () => {
+    this.setState({
+      hideCondition: true
+    })
+  };
+
   renderCondition = () => {
-    const {types, areas} = this.state;
+    const {types, areas, type, area} = this.state;
 
     return (
       <View style={styles.condition}>
         <View style={styles.row}>
           {
-            types.map((type, index) => {
-              const {name, value} = type;
+            areas.map((item, index) => {
+              const {name, value} = item;
 
               return (
-                <TouchableHighlight key={index} underlayColor="#DDDDDD" onPress={this.setArtistList}>
-                  <Text style={styles.conditionItem}>{name}</Text>
+                <TouchableHighlight key={index} underlayColor="#DDDDDD" onPress={() => this.changeArea(value)}>
+                  <Text style={[styles.conditionItem, value === area && {color: ThemeColor}]}>{name}</Text>
                 </TouchableHighlight>
               );
             })
@@ -111,12 +168,12 @@ class ArtistList extends Component<ArtistListState>{
         </View>
         <View style={styles.row}>
           {
-            areas.map((area, index) => {
-              const {name, value} = area;
+            types.map((item, index) => {
+              const {name, value} = item;
 
               return (
-                <TouchableHighlight key={index} underlayColor="#DDDDDD" onPress={this.setArtistList}>
-                  <Text style={styles.conditionItem}>{name}</Text>
+                <TouchableHighlight key={index} underlayColor="#DDDDDD" onPress={() => this.changeType(value)}>
+                  <Text style={[styles.conditionItem, value === type && {color: ThemeColor}]}>{name}</Text>
                 </TouchableHighlight>
               );
             })
@@ -126,9 +183,44 @@ class ArtistList extends Component<ArtistListState>{
     );
   };
 
+  renderTitle() {
+    const {areas, types, area, type} = this.state;
+    const areaObj = areas.filter(({value}) => value === area);
+    const typeObj = types.filter(({value}) => value === type);
+    let text = '全部歌手'
+    if (areaObj.length > 0 && typeObj.length > 0) {
+      text = `${areaObj[0].name}·${typeObj[0].name}`
+    }
+
+    const title = (
+      <View style={styles.title}>
+        <Text>{text}</Text>
+        <View style={styles.filter}>
+          <Icon name={IconType.shaixuan} size={16} color="#000000" />
+          <Text style={{fontSize: 12, marginLeft: 6}}>筛选</Text>
+        </View>
+      </View>
+    );
+
+    const hideTitle = () => {this.setState({hideCondition: false})}
+    if (Platform.OS === 'ios') {
+      return (
+        <TouchableHighlight underlayColor="#DFDFDF" onPress={hideTitle}>
+          {title}
+        </TouchableHighlight>
+      );
+    } else if(Platform.OS === 'android'){
+      return (
+        <TouchableNativeFeedback onPress={hideTitle}>
+          {title}
+        </TouchableNativeFeedback>
+      );
+    }
+  }
+
   renderArtist({item}: any) {
     const {img1v1Url, name, followed, accountId} = item;
-    return (
+    const node = (
       <View style={styles.artist}>
         <View style={styles.info}>
           <Image source={{uri: `${img1v1Url}?param=100y100`}} style={styles.image} resizeMode="contain"/>
@@ -151,13 +243,27 @@ class ArtistList extends Component<ArtistListState>{
         }
       </View>
     );
+    if (Platform.OS === 'ios') {
+      return (
+        <TouchableHighlight>
+          {node}
+        </TouchableHighlight>
+      );
+    } else if (Platform.OS === 'android') {
+      return (
+        <TouchableNativeFeedback onPress={() => {}}>
+          {node}
+        </TouchableNativeFeedback>
+      );
+    }
+    return null;
   }
 
   render() {
-    const {artistList} = this.state;
+    const {artistList, hideCondition} = this.state;
     return (
       <View style={styles.container}>
-        {this.renderCondition()}
+        {hideCondition ? this.renderTitle() : this.renderCondition()}
         <FlatList
           showsVerticalScrollIndicator={false}
           data={artistList}
@@ -165,8 +271,14 @@ class ArtistList extends Component<ArtistListState>{
           renderItem={this.renderArtist}
           ListHeaderComponent={this.headerComponent}
           ListFooterComponent={this.loading}
+          ListEmptyComponent={
+            <View style={{marginTop: 30}}>
+              <Loading />
+            </View>
+          }
           onEndReached={this.updateData}
           onEndReachedThreshold={0.1}
+          onScroll={this.onScroll}
         />
       </View>
     );
@@ -205,7 +317,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 10,
-    marginVertical: 8
+    paddingVertical: 8
   },
   info: {
     flexDirection: 'row',
@@ -232,6 +344,16 @@ const styles = StyleSheet.create({
   },
   followed: {
     borderColor: '#a4a4a4',
+  },
+  title: {
+    padding: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  filter: {
+    flexDirection: 'row',
+    alignItems: 'center'
   }
 });
 

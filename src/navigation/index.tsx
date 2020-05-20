@@ -14,6 +14,7 @@ import Drawer from "../screens/Drawer/index";
 import Search from "../screens/Search";
 import Main from "../screens/Main";
 import ArtistList from "../screens/ArtistList";
+import CustomWebView from "../screens/CustomWebView";
 import {Padding, ThemeColor} from "../constants/theme";
 import Icon from "../assets/fonts/Iconfont";
 import IconType from "../assets/fonts/icon";
@@ -148,7 +149,7 @@ class Navigation extends Component<{}, NavigationStates>{
             <FlatList
               data={searchSuggests}
               keyExtractor={(item, index) => index + ''}
-              renderItem={({item}) => {
+              renderItem={({item}: any) => {
                 return (
                   <View style={styles.listItem}>
                     <Icon name={IconType.iconfonticonfontsousuo1} size={19} color="#868686" />
@@ -178,6 +179,21 @@ class Navigation extends Component<{}, NavigationStates>{
     );
   };
 
+  webViewHeader = ({navigation}: any) => {
+    return (
+      <View style={styles.header}>
+        <TouchableHighlight
+          style={styles.circle}
+          underlayColor="#dddddd"
+          onPress={() => navigation.goBack()}
+        >
+          <Icon name={IconType.arrow_left} size={24} color="#000000"/>
+        </TouchableHighlight>
+        <Text style={styles.headerTitle}>网易云音乐</Text>
+      </View>
+    );
+  };
+
   render() {
     return (
       <>
@@ -201,6 +217,13 @@ class Navigation extends Component<{}, NavigationStates>{
             component={ArtistList}
             options={{
               header: this.artistListHeader,
+            }}
+          />
+          <Stack.Screen
+            name="CustomWebView"
+            component={CustomWebView}
+            options={{
+              header: this.webViewHeader
             }}
           />
         </Stack.Navigator>

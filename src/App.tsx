@@ -5,7 +5,7 @@ import API from "./services";
 import {NavigationContainer} from "@react-navigation/native";
 
 export default function App() {
-  API.loginForEmail('xxx', 'xxx');
+  API.loginForEmail('18254170605@163.com', 'lgz5785368');
   return (
     <>
       <StatusBar barStyle="dark-content" />

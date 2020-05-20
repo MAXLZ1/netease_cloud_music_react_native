@@ -5,12 +5,17 @@ import Menus from "./components/Menus";
 import RecommendSongList from "./components/RecommendSongList";
 import NewSongAndAlbum from "./components/NewSongAndAlbum";
 import {ThemeColor} from "../../constants/theme";
+import {StackNavigationHelpers} from "@react-navigation/stack/lib/typescript/src/types";
 
-class Discover extends Component{
+interface DiscoverProps {
+  navigation: StackNavigationHelpers
+}
+
+class Discover extends Component<DiscoverProps>{
   private newSongAndAlbum: React.RefObject<any>;
   private recommendSongList: React.RefObject<any>;
 
-  constructor(props: Readonly<{}>) {
+  constructor(props: Readonly<DiscoverProps>) {
     super(props);
     this.newSongAndAlbum = React.createRef();
     this.recommendSongList = React.createRef();
@@ -25,7 +30,7 @@ class Discover extends Component{
     await this.newSongAndAlbum.current.refresh();
     await this.recommendSongList.current.refresh();
     this.setState({refreshing: false});
-  }
+  };
 
   refreshControl() {
     return (
@@ -44,7 +49,7 @@ class Discover extends Component{
         showsVerticalScrollIndicator={false}
         refreshControl={this.refreshControl()}
       >
-        <Banner />
+        <Banner navigation={this.props.navigation}/>
         <Menus />
         <RecommendSongList ref={this.recommendSongList}/>
         <NewSongAndAlbum ref={this.newSongAndAlbum}/>
