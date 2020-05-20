@@ -20,15 +20,21 @@ import Icon from "../assets/fonts/Iconfont";
 import IconType from "../assets/fonts/icon";
 import API from "../services";
 import Storage from "../util/storage";
+import {RootState} from "../redux/reducers";
+import {connect} from "react-redux";
 
 const Stack = createStackNavigator();
+
+interface NavigationProps{
+  title: string
+}
 
 interface NavigationStates{
   value: string,
   searchSuggests: Object[]
 }
 
-class Navigation extends Component<{}, NavigationStates>{
+class Navigation extends Component<NavigationProps, NavigationStates>{
   private drawer: any;
   private input: any;
 
@@ -37,7 +43,7 @@ class Navigation extends Component<{}, NavigationStates>{
     searchSuggests: []
   };
 
-  constructor(props: Readonly<{}>) {
+  constructor(props: Readonly<NavigationProps>) {
     super(props);
     this.drawer = React.createRef();
     this.input = React.createRef();
@@ -189,7 +195,10 @@ class Navigation extends Component<{}, NavigationStates>{
         >
           <Icon name={IconType.arrow_left} size={24} color="#000000"/>
         </TouchableHighlight>
-        <Text style={styles.headerTitle}>网易云音乐</Text>
+        <Text style={styles.headerTitle}>{this.props.title}</Text>
+        <TouchableHighlight>
+          <Icon name={IconType.fenxiang} size={24} color="#000000"/>
+        </TouchableHighlight>
       </View>
     );
   };
@@ -303,8 +312,11 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     marginLeft: 10,
-    fontSize: 17
+    fontSize: 17,
+    flex: 1
   }
 });
 
-export default Navigation;
+const mapStateToProps = (state: RootState) => ({title: state.webViewInfo.title});
+
+export default connect(mapStateToProps)(Navigation);

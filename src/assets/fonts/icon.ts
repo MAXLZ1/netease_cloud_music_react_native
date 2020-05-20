@@ -1,5 +1,6 @@
 
 enum IconType {
+  fenxiang = "fenxiang",
   duihao = "duihao",
   jia = "jia",
   iconfonticonfontsousuo1 = "iconfonticonfontsousuo1",

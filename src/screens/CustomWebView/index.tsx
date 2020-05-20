@@ -1,14 +1,23 @@
 import React, {Component} from "react";
 import WebView from "react-native-webview";
 import {WebViewEvent} from "react-native-webview/lib/WebViewTypes";
+import {connect} from 'react-redux';
+import {AnyAction, Dispatch} from "redux";
+import {resetWebViewTitle, setWebViewTitle} from "../../redux/actions/webView-action";
 
 interface CustomWebViewProps {
-  route: any
+  route: any,
+  setWebViewTitle: (title: string) => void,
+  resetWebViewTitle: () => void
 }
 
 class CustomWebView extends Component<CustomWebViewProps>{
-  onLoad(e: WebViewEvent) {
-    console.log(e)
+  onLoad = (e: WebViewEvent) => {
+    this.props.setWebViewTitle(e.nativeEvent.title);
+  };
+
+  componentWillUnmount() {
+    this.props.resetWebViewTitle();
   }
 
   render() {
@@ -22,4 +31,13 @@ class CustomWebView extends Component<CustomWebViewProps>{
   }
 }
 
-export default CustomWebView;
+const mapDispatchToProps = (dispatch: Dispatch<AnyAction>) => ({
+  setWebViewTitle: (title: string) => {
+    dispatch(setWebViewTitle(title))
+  },
+  resetWebViewTitle: () => {
+    dispatch(resetWebViewTitle())
+  }
+});
+
+export default connect(null, mapDispatchToProps)(CustomWebView);

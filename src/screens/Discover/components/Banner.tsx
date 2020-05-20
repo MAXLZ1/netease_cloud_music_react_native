@@ -53,9 +53,8 @@ class Banner extends Component<BannerProps> {
             banners.map((banner) => {
               const {bannerId, pic, typeTitle, titleColor} = banner;
               return (
-                <TouchableWithoutFeedback onPress={() => this.bannerPress(banner)}>
+                <TouchableWithoutFeedback onPress={() => this.bannerPress(banner)} key={bannerId}>
                   <View
-                    key={bannerId}
                     style={styles.slider}
                   >
                     <ImageBackground
