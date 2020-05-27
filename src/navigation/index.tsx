@@ -195,10 +195,10 @@ class Navigation extends Component<NavigationProps, NavigationStates>{
         >
           <Icon name={IconType.arrow_left} size={24} color="#000000"/>
         </TouchableHighlight>
-        <Text style={styles.headerTitle}>{this.props.title}</Text>
-        <TouchableHighlight>
-          <Icon name={IconType.fenxiang} size={24} color="#000000"/>
-        </TouchableHighlight>
+        <Text style={styles.headerTitle} ellipsizeMode="tail">{this.props.title}</Text>
+        {/*<TouchableHighlight underlayColor="#dddddd" onPress={() => {}}>*/}
+        {/*  <Icon name={IconType.fenxiang} size={24} color="#000000"/>*/}
+        {/*</TouchableHighlight>*/}
       </View>
     );
   };

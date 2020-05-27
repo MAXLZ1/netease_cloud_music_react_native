@@ -1,7 +1,7 @@
-import {SET_WEBVIEW_TITLE, RESET_WEBVIEW_TITLE, WebViewInfoActions} from "../action-types";
+import {SET_WEBVIEW_TITLE, RESET_WEBVIEW_TITLE, WebViewInfoActions} from "../actions/webView-action-types";
 
 interface WebViewInfoState {
-  title: string
+  title?: string
 }
 
 const initWebViewInfo: WebViewInfoState = {

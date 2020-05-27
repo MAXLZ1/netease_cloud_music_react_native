@@ -1,4 +1,5 @@
 export const SET_WEBVIEW_TITLE = 'SET_WEBVIEW_TITLE';
+
 export const RESET_WEBVIEW_TITLE = 'RESET_WEBVIEW_TITLE';
 
 interface SetWebViewTitleAction {
@@ -7,7 +8,8 @@ interface SetWebViewTitleAction {
 }
 
 interface ResetWebViewTitleAction {
-  type: string
+  type: string,
+  title?: string
 }
 
 export type WebViewInfoActions = SetWebViewTitleAction | ResetWebViewTitleAction;

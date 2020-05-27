@@ -1,4 +1,4 @@
-import {SET_WEBVIEW_TITLE, RESET_WEBVIEW_TITLE, WebViewInfoActions} from "../action-types";
+import {SET_WEBVIEW_TITLE, RESET_WEBVIEW_TITLE, WebViewInfoActions} from "./webView-action-types";
 
 export function setWebViewTitle(title: string): WebViewInfoActions {
   return {

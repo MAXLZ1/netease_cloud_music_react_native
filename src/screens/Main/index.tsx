@@ -10,6 +10,7 @@ import Drawer from "../Drawer/index";
 import Iconfont from "../../assets/fonts/Iconfont";
 import Search from "../Search";
 import {StackNavigationHelpers} from "@react-navigation/stack/lib/typescript/src/types";
+import FooterPlayer from "../../components/FooterPlayer";
 
 const Tab = createMaterialTopTabNavigator();
 const DRAW_WIDTH = Dimensions.get('window').width - 70;
@@ -134,6 +135,7 @@ class Main extends Component<MainProps>{
               options={{tabBarLabel: '视频'}}
             ></Tab.Screen>
           </Tab.Navigator>
+          <FooterPlayer />
         </DrawerLayout>
 
       </View>

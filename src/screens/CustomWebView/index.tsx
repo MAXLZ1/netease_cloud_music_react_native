@@ -13,7 +13,8 @@ interface CustomWebViewProps {
 
 class CustomWebView extends Component<CustomWebViewProps>{
   onLoad = (e: WebViewEvent) => {
-    this.props.setWebViewTitle(e.nativeEvent.title);
+    const {title} = e.nativeEvent;
+    title && this.props.setWebViewTitle(title);
   };
 
   componentWillUnmount() {

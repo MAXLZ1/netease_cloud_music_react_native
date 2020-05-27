@@ -1,12 +1,12 @@
 import {Platform} from 'react-native';
 import Request from "../util/request";
 
-const BASE_URL = 'http://192.168.0.100:3000';
+const BASE_URL = 'http://192.168.0.101:3000';
 
 export default class API {
   // 邮箱登录
-  static loginForEmail(email: string, pwd: string) {
-    Request.GET(`${BASE_URL}/login?email=${email}&password=${pwd}`)
+  static async loginForEmail(email: string, pwd: string) {
+    return await Request.GET(`${BASE_URL}/login?email=${email}&password=${pwd}`)
   }
 
   // 获取轮播数据
@@ -93,6 +93,15 @@ export default class API {
       return await Request.GET(`${BASE_URL}/artist/list?limit=${limit}&offset=${offset}&type=${type}&area=${area}`);
     } catch (e) {
       return new Error('歌手列表失败！');
+    }
+  }
+
+  // 用户详情
+  static async requestUserInfo(uid: number) {
+    try{
+      return await Request.GET(`${BASE_URL}/user/detail?uid=${uid}`);
+    } catch (e) {
+      return new Error('每日歌单请求失败！');
     }
   }
 }

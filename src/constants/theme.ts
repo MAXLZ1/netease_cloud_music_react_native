@@ -1,5 +1,5 @@
 // 主题色
-export const ThemeColor = '#EA4D45';
+export const ThemeColor = '#ea453f';
 
 // 内边距
 export const Padding = 15;

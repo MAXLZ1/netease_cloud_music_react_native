@@ -1,8 +1,11 @@
 import webViewInfo from "./webView-reducer";
+import userInfo from "./userInfo-reducer";
 import {combineReducers} from "redux";
 
+
 const rootReducer = combineReducers({
-  webViewInfo
+  webViewInfo,
+  userInfo
 });
 
 export default rootReducer;
