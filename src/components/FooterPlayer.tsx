@@ -13,10 +13,6 @@ class FooterPlayer extends Component{
 
 const styles = StyleSheet.create({
   box: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
     height: 50,
     borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: '#e3e3e3',

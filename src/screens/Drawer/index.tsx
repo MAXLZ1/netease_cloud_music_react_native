@@ -7,6 +7,7 @@ import {Profile} from "../../redux/actions/userInfo-action-types";
 import {ThemeColor} from "../../constants/theme";
 import IconType from "../../assets/fonts/icon";
 import Icon from "../../assets/fonts/Iconfont";
+import TouchableCompatibility from "../../components/TouchableCompatibility";
 
 interface DrawerProps {
   profile: Profile
@@ -167,14 +168,22 @@ class Drawer extends Component<DrawerProps, DrawerState>{
     })
   }
 
+  footerMenuPress = (index: number) => {
+    if (index === 2) {
+      // TODO 退出
+    }
+  };
+
   renderFooterMenu() {
     const {footerMenu} = this.state;
     return footerMenu.map((item: Menu, index: number) => {
       return (
-        <View key={index} style={styles.footerMenu}>
-          <Icon name={item.icon} size={20} color="#000000" />
-          <Text style={{marginLeft: 8}}>{item.title}</Text>
-        </View>
+        <TouchableCompatibility onPress={() => this.footerMenuPress(index)}>
+          <View key={index} style={[styles.footerMenu, index === 0 && {flex: 1}]}>
+            <Icon name={item.icon} size={20} color="#000000" />
+            <Text style={{marginLeft: 8}}>{item.title}</Text>
+          </View>
+        </TouchableCompatibility>
       );
     });
   }
@@ -273,17 +282,17 @@ const styles = StyleSheet.create({
   },
   subTitle: {
     color: '#ffffff',
-    fontSize: 11,
+    fontSize: 10,
     marginTop: 3
   },
   cardBtn: {
-    height: 22,
-    paddingHorizontal: 8,
+    height: 18,
+    paddingHorizontal: 7,
     borderRadius: 11,
     justifyContent: 'center'
   },
   cardBtnText: {
-    fontSize: 11
+    fontSize: 10
   },
   cardBottom: {
     flex: 1,
@@ -311,8 +320,6 @@ const styles = StyleSheet.create({
     borderTopWidth: StyleSheet.hairlineWidth,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 15
   },
   info: {
     flexDirection: 'row',
@@ -358,8 +365,10 @@ const styles = StyleSheet.create({
     marginLeft: 10
   },
   footerMenu: {
+    height: '100%',
+    paddingHorizontal: 15,
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'center'
   }
 });
 

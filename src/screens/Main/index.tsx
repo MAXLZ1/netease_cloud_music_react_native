@@ -11,6 +11,7 @@ import Iconfont from "../../assets/fonts/Iconfont";
 import Search from "../Search";
 import {StackNavigationHelpers} from "@react-navigation/stack/lib/typescript/src/types";
 import FooterPlayer from "../../components/FooterPlayer";
+import {MaterialTopTabBarProps} from "@react-navigation/material-top-tabs/lib/typescript/src/types";
 
 const Tab = createMaterialTopTabNavigator();
 const DRAW_WIDTH = Dimensions.get('window').width - 70;
@@ -54,7 +55,7 @@ class Main extends Component<MainProps>{
           <Tab.Navigator
             initialRouteName="Discover"
             tabBar={
-              ({ state, descriptors, navigation }) => {
+              ({ state, descriptors, navigation }: MaterialTopTabBarProps) => {
                 return (
                   <View style={styles.container}>
                     <TouchableHighlight

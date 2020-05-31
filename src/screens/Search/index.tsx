@@ -6,18 +6,26 @@ import {Padding, ThemeColor} from "../../constants/theme";
 import Storage from "../../util/storage";
 import API from "../../services";
 import Dialog from "../../components/Dialog";
+import Loading from "../../components/Loading";
+import {StackNavigationHelpers} from "@react-navigation/stack/lib/typescript/src/types";
+
+interface SearchProps{
+  navigation: StackNavigationHelpers
+}
 
 interface SearchState {
   hotSearch: Object[],
   history: Object[],
-  dialogShow: boolean
+  dialogShow: boolean,
+  loading: boolean
 }
 
-class Search extends Component<{}, SearchState> {
+class Search extends Component<SearchProps, SearchState> {
   state = {
     history: [],
     hotSearch: [],
-    dialogShow: false
+    dialogShow: false,
+    loading: true
   };
 
   async componentDidMount() {
@@ -25,15 +33,18 @@ class Search extends Component<{}, SearchState> {
     const result: any = await API.requestHotSearchDetail();
     this.setState({
       history: historyStr ? JSON.parse(historyStr) : [],
-      hotSearch: result.data
+      hotSearch: result.data,
+      loading: false
     });
   }
 
   renderHistory = ({item, index}: any) => {
     return (
-      <View style={[styles.historyItem, index === 0 && {marginLeft: 0}]}>
-        <Text style={{fontSize: 13}}>{item}</Text>
-      </View>
+      <TouchableOpacity activeOpacity={0.7} onPress={() => this.props.navigation.navigate('SearchResult')}>
+        <View style={[styles.historyItem, index === 0 && {marginLeft: 0}]}>
+          <Text style={{fontSize: 13}}>{item}</Text>
+        </View>
+      </TouchableOpacity>
     );
   };
 
@@ -91,10 +102,16 @@ class Search extends Component<{}, SearchState> {
   };
 
   render() {
-    const {history, hotSearch, dialogShow} = this.state;
+    const {history, hotSearch, dialogShow, loading} = this.state;
 
     return (
       <View style={{backgroundColor: '#ffffff', flex: 1}}>
+        {
+          loading &&
+          <View style={styles.loadingBox}>
+            <Loading/>
+          </View>
+        }
         <ScrollView showsVerticalScrollIndicator={false}>
           { history.length !== 0 &&
             <View style={styles.history}>
@@ -135,6 +152,15 @@ class Search extends Component<{}, SearchState> {
 }
 
 const styles = StyleSheet.create({
+  loadingBox: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
   history:{
     paddingHorizontal: Padding,
     marginTop: 10,

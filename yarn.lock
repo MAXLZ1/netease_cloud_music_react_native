@@ -1298,10 +1298,10 @@
     react-is "^16.13.0"
     use-subscription "^1.4.0"
 
-"@react-navigation/material-top-tabs@^5.1.14":
-  version "5.1.14"
-  resolved "https://registry.npm.taobao.org/@react-navigation/material-top-tabs/download/@react-navigation/material-top-tabs-5.1.14.tgz#cb4993b7db70dc9f7028d0e71255ef98dc07f22a"
-  integrity sha1-y0mTt9tw3J9wKNDnElXvmNwH8io=
+"@react-navigation/material-top-tabs@^5.2.8":
+  version "5.2.8"
+  resolved "https://registry.yarnpkg.com/@react-navigation/material-top-tabs/-/material-top-tabs-5.2.8.tgz#22e0de625ca51916039a70806f413e1ae77f2afe"
+  integrity sha512-Rs4gVY0BIsIODHWvvBUb8jrVGe1tj2AXzKIGWcwA9nPNDemfRjn/j8vQoKV3/qs2JVg4WCtLSNnhogPa7WGlSg==
   dependencies:
     color "^3.1.2"
 
@@ -5688,10 +5688,10 @@ react-native-swiper@^1.6.0:
   dependencies:
     prop-types "^15.5.10"
 
-react-native-tab-view@^2.14.0:
-  version "2.14.0"
-  resolved "https://registry.npm.taobao.org/react-native-tab-view/download/react-native-tab-view-2.14.0.tgz#dd801f82fdb8e92fce9688b78d13923f3a5a2b3f"
-  integrity sha1-3YAfgv246S/Oloi3jROSPzpaKz8=
+react-native-tab-view@^2.14.2:
+  version "2.14.2"
+  resolved "https://registry.yarnpkg.com/react-native-tab-view/-/react-native-tab-view-2.14.2.tgz#5f1e2063f632ec7f8ab27374ecaf72677788b445"
+  integrity sha512-BkQ9htmUM3iroMTgIdCSP+1On8bRHkgFHiOCAnk9OhoFlQOvwZebSU6k705QBDeuuwEVIIT4+C+nT2MvXI/FEQ==
 
 react-native-unimodules@~0.9.0:
   version "0.9.0"

@@ -14,6 +14,7 @@ import Drawer from "../screens/Drawer/index";
 import Search from "../screens/Search";
 import Main from "../screens/Main";
 import ArtistList from "../screens/ArtistList";
+import SearchResult from "../screens/SearchResult";
 import CustomWebView from "../screens/CustomWebView";
 import {Padding, ThemeColor} from "../constants/theme";
 import Icon from "../assets/fonts/Iconfont";
@@ -30,7 +31,7 @@ interface NavigationProps{
 }
 
 interface NavigationStates{
-  value: string,
+  searchValue: string,
   searchSuggests: Object[]
 }
 
@@ -39,7 +40,7 @@ class Navigation extends Component<NavigationProps, NavigationStates>{
   private input: any;
 
   state = {
-    value: '',
+    searchValue: '',
     searchSuggests: []
   };
 
@@ -61,7 +62,7 @@ class Navigation extends Component<NavigationProps, NavigationStates>{
 
   handleChange = async (text: string) => {
     this.setState({
-      value: text,
+      searchValue: text,
     });
     if (text) {
       const res: any = await API.requestSearchSuggest(text);
@@ -79,40 +80,41 @@ class Navigation extends Component<NavigationProps, NavigationStates>{
 
   clearInput = () => {
     this.setState({
-      value: '',
+      searchValue: '',
       searchSuggests: []
     });
   };
 
-  search = async () => {
-    const {value} = this.state;
-    if (value !== '') {
-      await API.requestSearch(value);
+  search = async (navigation: any) => {
+    const {searchValue} = this.state;
+    if (searchValue !== '') {
+      await API.requestSearch(searchValue);
       const searchHistory = await Storage.getItem('search_history');
       const historyArr = searchHistory ? JSON.parse(searchHistory) : [];
-      historyArr.unshift(value);
+      historyArr.unshift(searchValue);
       await Storage.setItem('search_history', JSON.stringify(historyArr));
       this.setState({
-        value: ''
-      })
+        searchValue: ''
+      });
+      navigation.navigate('SearchResult');
     }
   };
 
-  renderSearchInput = () => {
-    const {value} = this.state;
+  renderSearchInput = (navigation: any) => {
+    const {searchValue} = this.state;
     return (
       <View style={styles.inputBox}>
         <TextInput
           style={styles.input}
-          value={value}
+          value={searchValue}
           onChangeText={this.handleChange}
           selectionColor={ThemeColor}
           returnKeyType="search"
           autoFocus={true}
-          onSubmitEditing={this.search}
+          onSubmitEditing={() => this.search(navigation)}
         />
         {
-          value ?
+          searchValue ?
             <TouchableWithoutFeedback onPress={this.clearInput}>
               <Icon name={IconType.guanbi} size={22} color="#000000" style={styles.close} />
             </TouchableWithoutFeedback>
@@ -126,18 +128,12 @@ class Navigation extends Component<NavigationProps, NavigationStates>{
   };
 
   searchHeader = ({navigation}: any) => {
-    const {searchSuggests, value} = this.state;
+    const {searchSuggests, searchValue} = this.state;
 
     return (
       <View style={styles.header}>
-        <TouchableHighlight
-          style={styles.circle}
-          underlayColor="#dddddd"
-          onPress={() => navigation.goBack()}
-        >
-          <Icon name={IconType.arrow_left} size={24} color="#000000"/>
-        </TouchableHighlight>
-        {this.renderSearchInput()}
+        {this.goBackBtn(navigation)}
+        {this.renderSearchInput(navigation)}
         <TouchableHighlight
           style={styles.circle}
           underlayColor="#dddddd"
@@ -145,41 +141,43 @@ class Navigation extends Component<NavigationProps, NavigationStates>{
         >
           <Icon name={IconType.iconfontgerenzhongxin16} size={24} color="#000000"/>
         </TouchableHighlight>
-        {
-          searchSuggests.length > 0 && value !== '' && <View style={styles.result}>
-            <TouchableWithoutFeedback onPress={this.search}>
-              <View style={[styles.listItem, styles.search]}>
-                <Text  numberOfLines={1} ellipsizeMode="tail" style={[styles.text, {color: '#50b2ff'}]}>搜索 '{value}'</Text>
-              </View>
-            </TouchableWithoutFeedback>
-            <FlatList
-              data={searchSuggests}
-              keyExtractor={(item, index) => index + ''}
-              renderItem={({item}: any) => {
-                return (
+        <View style={styles.result}>
+          {searchValue !== '' && <TouchableWithoutFeedback onPress={() => this.search(navigation)}>
+            <View style={[styles.listItem, styles.search]}>
+              <Text  numberOfLines={1} ellipsizeMode="tail" style={[styles.text, {color: '#50b2ff'}]}>搜索 '{searchValue}'</Text>
+            </View>
+          </TouchableWithoutFeedback>}
+          {searchSuggests.length > 0 && searchValue !== '' && <FlatList
+            data={searchSuggests}
+            keyExtractor={(item, index) => index + ''}
+            renderItem={({item}: any) => {
+              return (
+                <TouchableWithoutFeedback onPress={() => {}}>
                   <View style={styles.listItem}>
                     <Icon name={IconType.iconfonticonfontsousuo1} size={19} color="#868686" />
                     <Text style={styles.text} numberOfLines={1} ellipsizeMode="tail">{item.keyword}</Text>
                   </View>
-                );
-              }}
-            />
-          </View>
-        }
+                </TouchableWithoutFeedback>
+              );
+            }}
+          />}
+        </View>
       </View>
     );
+  };
+
+  searchResultHeader = ({navigation}: any) => {
+    return (
+      <View style={styles.header}>
+        {this.goBackBtn(navigation)}
+      </View>
+    )
   };
 
   artistListHeader = ({navigation}: any) => {
     return (
       <View style={styles.header}>
-        <TouchableHighlight
-          style={styles.circle}
-          underlayColor="#dddddd"
-          onPress={() => navigation.goBack()}
-        >
-          <Icon name={IconType.arrow_left} size={24} color="#000000"/>
-        </TouchableHighlight>
+        {this.goBackBtn(navigation)}
         <Text style={styles.headerTitle}>歌手分类</Text>
       </View>
     );
@@ -188,13 +186,7 @@ class Navigation extends Component<NavigationProps, NavigationStates>{
   webViewHeader = ({navigation}: any) => {
     return (
       <View style={styles.header}>
-        <TouchableHighlight
-          style={styles.circle}
-          underlayColor="#dddddd"
-          onPress={() => navigation.goBack()}
-        >
-          <Icon name={IconType.arrow_left} size={24} color="#000000"/>
-        </TouchableHighlight>
+        {this.goBackBtn(navigation)}
         <Text style={styles.headerTitle} ellipsizeMode="tail">{this.props.title}</Text>
         {/*<TouchableHighlight underlayColor="#dddddd" onPress={() => {}}>*/}
         {/*  <Icon name={IconType.fenxiang} size={24} color="#000000"/>*/}
@@ -202,6 +194,18 @@ class Navigation extends Component<NavigationProps, NavigationStates>{
       </View>
     );
   };
+
+  goBackBtn(navigation: any) {
+    return (
+      <TouchableHighlight
+        style={styles.circle}
+        underlayColor="#dddddd"
+        onPress={() => navigation.goBack()}
+      >
+        <Icon name={IconType.arrow_left} size={24} color="#000000"/>
+      </TouchableHighlight>
+    );
+  }
 
   render() {
     return (
@@ -219,6 +223,13 @@ class Navigation extends Component<NavigationProps, NavigationStates>{
             component={Search}
             options={{
               header: this.searchHeader,
+            }}
+          />
+          <Stack.Screen
+            name="SearchResult"
+            component={SearchResult}
+            options={{
+              header: this.searchResultHeader,
             }}
           />
           <Stack.Screen

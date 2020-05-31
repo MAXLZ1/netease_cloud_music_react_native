@@ -1,7 +1,7 @@
 import {Platform} from 'react-native';
 import Request from "../util/request";
 
-const BASE_URL = 'http://192.168.0.101:3000';
+const BASE_URL = 'http://192.168.0.100:3000';
 
 export default class API {
   // 邮箱登录
